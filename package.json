@@ -1,0 +1,19 @@
+{
+  "name": "urban-detail-co",
+  "version": "1.0.0",
+  "description": "Urban Detail Co. auto-detailing website, with a local preview and export command.",
+  "license": "UNLICENSED",
+  "bin": { "urban-detail-co": "bin/urban-detail-co.cjs" },
+  "files": ["bin/", "index.html", "sw.js", "security-hardening.sql", "DEPLOYMENT.md"],
+  "scripts": {
+    "start": "node bin/urban-detail-co.cjs",
+    "test": "node --test",
+    "prepublishOnly": "npm test"
+  },
+  "engines": { "node": ">=20" },
+  "repository": { "type": "git", "url": "git+https://github.com/lucastabit13-dev/urban-detail-co.git" },
+  "homepage": "https://github.com/lucastabit13-dev/urban-detail-co#readme",
+  "bugs": { "url": "https://github.com/lucastabit13-dev/urban-detail-co/issues" },
+  "keywords": ["auto-detailing", "website", "static-site", "supabase"],
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" }
+}

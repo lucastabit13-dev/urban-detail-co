@@ -19,6 +19,75 @@ A responsive, single-page web experience for an auto-detailing business. It comb
 
 ## Run locally
 
+Requires Node.js 20 or newer. From this repository, run:
+
+```sh
+npm start
+```
+
+Open `http://localhost:3000`. To choose a port, run `npm start -- --port 8000`.
+
+## Download through npm
+
+Once version 1.0.0 is published to the npm registry, preview it with:
+
+```sh
+npx urban-detail-co
+```
+
+Or install it into a project:
+
+```sh
+npm install urban-detail-co
+npx urban-detail-co
+```
+
+To copy the website files into a new directory for editing or hosting:
+
+```sh
+npx urban-detail-co export my-website
+```
+
+The destination must not already exist. The preview listens on localhost only;
+use the exported files with your hosting provider for a public website.
+The package has no Node dependencies; browser CDN dependencies still require internet access.
+The exported website uses the original business's Supabase configuration. Before
+using it for another business, replace that configuration with your own project.
+
+## Package and publish
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for npm publishing, GitHub Pages setup,
+other static hosting options, and a post-deployment checklist. The repository
+includes `.github/workflows/deploy-pages.yml` for GitHub Pages deployments.
+
+Create a downloadable archive without publishing:
+
+```sh
+npm test
+npm pack
+```
+
+The result is `urban-detail-co-1.0.0.tgz`. It can be installed directly:
+
+```sh
+npm install /path/to/urban-detail-co-1.0.0.tgz
+```
+
+To publish under your npm account:
+
+```sh
+npm login
+npm publish
+```
+
+The package name must be available. If it is already owned by someone else,
+change `name` in `package.json` to `@YOUR_NPM_USERNAME/urban-detail-co`, and use
+that scoped name in install and npx commands. Publishing runs the tests first.
+Later releases need a new version, for example `npm version patch` before publishing.
+The package is marked `UNLICENSED`; no open-source reuse license is granted.
+
+## Alternative static preview
+
 This is a static site and has no build step. Serve the repository root over HTTP, then open it in a browser. For example, with Python installed:
 
 ```sh
