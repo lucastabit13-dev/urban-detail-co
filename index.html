@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Urban Detail Co. | Multi-Page Precision Auto Care</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#07080c',
+                            card: '#0e121b',
+                            cardHover: '#141b28',
+                            nav: 'rgba(7, 8, 12, 0.88)',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                        },
+                        cyanGlow: '#00f0ff',
+                        violetGlow: '#8b5cf6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #07080c;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(14, 18, 27, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 240, 255, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(0, 240, 255, 0.15);
+        }
+
+        .glass-card-featured {
+            background: linear-gradient(180deg, rgba(14, 27, 42, 0.9) 0%, rgba(10, 15, 25, 0.85) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        .glass-nav {
+            background: rgba(7, 8, 12, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Grid Background pattern */
+        .bg-grid {
+            background-size: 32px 32px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glow buttons */
+        .glow-cyan {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .glow-cyan::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(90deg, #00f0ff, #8b5cf6);
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            filter: blur(8px);
+        }
+        .glow-cyan:hover::after, .glow-cyan:active::after {
+            opacity: 0.8;
+        }
+
+        /* Page View Animations */
+        .page-view {
+            display: none;
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .page-view.active-page {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #07080c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+
+        /* Accordion transition */
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0, 1, 0, 1), opacity 0.25s ease;
+            opacity: 0;
+        }
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            opacity: 1;
+        }
+        .faq-item.active .faq-chevron {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="relative text-slate-200 bg-grid antialiased selection:bg-cyanGlow selection:text-slate-950 pb-20 sm:pb-0">
+
+    <!-- Interactive Background Particles -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- HEADER NAVIGATION BAR -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-nav px-4 sm:px-6 lg:px-12 py-3.5">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- BRAND LOGO -->
+            <a href="#home" onclick="navigateTo('home')" class="group flex flex-col focus:outline-none select-none cursor-pointer" title="Urban Detail Co. Home">
+                <span class="font-mono font-extrabold text-base sm:text-xl tracking-widest text-white group-hover:text-cyanGlow transition-colors">
+                    URBAN DETAIL CO.
+                </span>
+                <span class="text-[9px] sm:text-[10px] font-mono text-slate-400 tracking-wider uppercase">
+                    PRECISION AUTO CARE
+                </span>
+            </a>
+
+            <!-- PAGE NAVIGATION LINKS (Desktop) -->
+            <nav class="hidden lg:flex items-center gap-7 font-mono text-xs">
+                <a href="#home" onclick="navigateTo('home')" data-nav="home" class="nav-link text-cyanGlow font-bold transition-colors">
+                    HOME
+                </a>
+                <a href="#services" onclick="navigateTo('services')" data-nav="services" class="nav-link text-slate-400 hover:text-cyanGlow transition-colors">
+                    SERVICES & PRICING
+                </a>
+                <a href="#ceramic" onclick="navigateTo('ceramic')" data-nav="ceramic" class="nav-link text-slate-400 hover:text-cyanGlow transition-colors">
+                    CERAMIC TECH
+                </a>
+                <a href="#process" onclick="navigateTo('process')" data-nav="process" class="nav-link text-slate-400 hover:text-cyanGlow transition-colors">
+                    FULL CLEANING PROCESS
+                </a>
+                <a href="#booking" onclick="navigateTo('booking')" data-nav="booking" class="nav-link text-slate-400 hover:text-cyanGlow transition-colors">
+                    BOOK NOW
+                </a>
+                <a href="#faq" onclick="navigateTo('faq')" data-nav="faq" class="nav-link text-slate-400 hover:text-cyanGlow transition-colors">
+                    FAQ
+                </a>
+                <a href="#admin" onclick="event.preventDefault(); openAdminPasscodeModal();" data-nav="admin" class="nav-link text-slate-400 hover:text-cyanGlow transition-colors">
+                    <i class="fa-solid fa-lock text-[10px] mr-1"></i>ADMIN
+                </a>
+            </nav>
+
+            <!-- CTA Button & System Status -->
+            <div class="hidden sm:flex items-center gap-4">
+                <div id="backend-status-badge" onclick="checkSupabaseConnection(true)" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono cursor-pointer hover:bg-emerald-500/20 transition-all" title="Click to test Supabase Connection">
+                    <span id="backend-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="backend-status-text">TESTING SUPABASE...</span>
+                </div>
+
+                <a href="#booking" onclick="setBookingPackage(100); navigateTo('booking');" class="glow-cyan px-4 py-2.5 rounded-lg bg-cyanGlow text-slate-950 font-mono font-bold text-xs uppercase tracking-wider hover:bg-cyan-300 transition-all">
+                    Book ($100)
+                </a>
+            </div>
+
+            <!-- Mobile Hamburger Button -->
+            <div class="flex items-center gap-2 sm:hidden">
+                <button id="mobile-menu-toggle" aria-label="Toggle Navigation Menu" class="p-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-200 hover:text-white hover:bg-white/10 active:scale-95 transition-all">
+                    <i class="fa-solid fa-bars text-lg" id="mobile-menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MOBILE NAVIGATION DRAWER -->
+        <div id="mobile-drawer" class="hidden sm:hidden flex-col gap-2 pt-4 pb-3 border-t border-white/10 mt-3 font-mono text-xs text-slate-300">
+            <a href="#home" onclick="navigateTo('home'); closeMobileDrawer();" class="mobile-nav-item py-2.5 px-3 rounded-lg hover:bg-white/5 flex items-center justify-between text-cyanGlow font-bold">
+                <span><i class="fa-solid fa-house text-xs mr-2"></i> HOME</span>
+                <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+            </a>
+            <a href="#services" onclick="navigateTo('services'); closeMobileDrawer();" class="mobile-nav-item py-2.5 px-3 rounded-lg hover:bg-white/5 flex items-center justify-between">
+                <span><i class="fa-solid fa-tags text-xs mr-2 text-cyanGlow"></i> SERVICES & PRICING</span>
+                <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+            </a>
+            <a href="#ceramic" onclick="navigateTo('ceramic'); closeMobileDrawer();" class="mobile-nav-item py-2.5 px-3 rounded-lg hover:bg-white/5 flex items-center justify-between">
+                <span><i class="fa-solid fa-flask text-xs mr-2 text-cyanGlow"></i> CERAMIC TECHNOLOGY</span>
+                <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+            </a>
+            <a href="#process" onclick="navigateTo('process'); closeMobileDrawer();" class="mobile-nav-item py-2.5 px-3 rounded-lg hover:bg-white/5 flex items-center justify-between">
+                <span><i class="fa-solid fa-list-check text-xs mr-2 text-cyanGlow"></i> FULL CLEANING PROCESS</span>
+                <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+            </a>
+            <a href="#booking" onclick="setBookingPackage(100); navigateTo('booking'); closeMobileDrawer();" class="mobile-nav-item py-2.5 px-3 rounded-lg hover:bg-white/5 flex items-center justify-between">
+                <span><i class="fa-solid fa-calendar-check text-xs mr-2 text-cyanGlow"></i> BOOKING SYSTEM</span>
+                <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+            </a>
+            <a href="#faq" onclick="navigateTo('faq'); closeMobileDrawer();" class="mobile-nav-item py-2.5 px-3 rounded-lg hover:bg-white/5 flex items-center justify-between">
+                <span><i class="fa-solid fa-circle-question text-xs mr-2 text-cyanGlow"></i> FAQ & CONTACT</span>
+                <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+            </a>
+            <a href="#admin" onclick="event.preventDefault(); openAdminPasscodeModal(); closeMobileDrawer();" class="mobile-nav-item py-2.5 px-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between text-slate-300 hover:text-cyanGlow">
+                <span><i class="fa-solid fa-lock text-xs mr-2 text-cyanGlow"></i> ADMIN DASHBOARD</span>
+                <i class="fa-solid fa-shield text-[10px] text-cyanGlow"></i>
+            </a>
+            
+            <a href="#booking" onclick="setBookingPackage(100); navigateTo('booking'); closeMobileDrawer();" class="mt-2 py-3 text-center bg-cyanGlow text-slate-950 font-bold rounded-lg uppercase text-xs tracking-wider active:scale-[0.98] transition-all">
+                Book Full Detail ($100)
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN MULTI-PAGE CONTAINER -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-28 sm:pt-36 pb-20 sm:pb-28">
+
+        <!-- PAGE 1: HOME PAGE -->
+        <div id="page-home" class="page-view active-page space-y-16 sm:space-y-24">
+            
+            <!-- Hero Section -->
+            <section class="min-h-[55vh] sm:min-h-[65vh] flex flex-col justify-center relative">
+                <div class="space-y-6 sm:space-y-8 max-w-3xl">
+                    
+                    <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 font-mono text-[11px] sm:text-xs text-slate-300">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyanGlow animate-pulse"></span>
+                        <span class="tracking-wide text-slate-300">SiO2 Ceramic Foam Wash & Detail</span>
+                    </div>
+
+                    <h1 class="text-3xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.12] font-heading">
+                        Precision Detail.<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyanGlow via-cyan-200 to-slate-200">
+                            Flat-Rate Pricing.
+                        </span>
+                    </h1>
+
+                    <p class="text-slate-400 text-sm sm:text-lg font-normal leading-relaxed max-w-xl">
+                        Dedicated auto maintenance with fixed rates. Standardized care for everyday passenger vehicles with zero hidden upcharges.
+                    </p>
+
+                    <!-- Quick Tier Options -->
+                    <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3 pt-1 font-mono text-xs">
+                        <button onclick="setBookingPackage(50); navigateTo('booking');" class="px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg bg-white/[0.03] border border-white/10 hover:border-cyanGlow/40 text-slate-300 hover:text-cyanGlow transition-all text-center flex flex-col sm:flex-row items-center justify-center gap-1">
+                            <span class="font-bold text-white">$50</span>
+                            <span class="text-slate-400 text-[10px] sm:text-xs">Exterior</span>
+                        </button>
+                        <button onclick="setBookingPackage(60); navigateTo('booking');" class="px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg bg-white/[0.03] border border-white/10 hover:border-cyanGlow/40 text-slate-300 hover:text-cyanGlow transition-all text-center flex flex-col sm:flex-row items-center justify-center gap-1">
+                            <span class="font-bold text-white">$60</span>
+                            <span class="text-slate-400 text-[10px] sm:text-xs">Interior</span>
+                        </button>
+                        <button onclick="setBookingPackage(100); navigateTo('booking');" class="px-2.5 sm:px-4 py-2.5 sm:py-2 rounded-lg bg-cyanGlow/10 border border-cyanGlow/40 text-cyanGlow hover:bg-cyanGlow/20 transition-all font-semibold text-center flex flex-col sm:flex-row items-center justify-center gap-1">
+                            <span class="font-bold">$100</span>
+                            <span class="text-cyan-200 text-[10px] sm:text-xs">Full Detail</span>
+                        </button>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
+                        <button onclick="setBookingPackage(100); navigateTo('booking');" class="glow-cyan px-6 py-3.5 rounded-xl sm:rounded-lg bg-cyanGlow text-slate-950 font-bold font-mono text-xs uppercase tracking-wider hover:bg-cyan-300 transition-all flex items-center justify-center gap-2">
+                            <span>Book Reservation</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                        <button onclick="navigateTo('services')" class="px-6 py-3.5 rounded-xl sm:rounded-lg bg-white/[0.03] border border-white/10 text-slate-300 hover:bg-white/[0.08] hover:text-white font-mono text-xs transition-all text-center">
+                            Explore All Services
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Metric Highlights Bar -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-8 sm:pt-12 border-t border-white/10 mt-10 sm:mt-14">
+                    <div onclick="navigateTo('services')" class="glass-card p-4 sm:p-5 rounded-xl cursor-pointer">
+                        <div class="font-mono text-xl sm:text-2xl font-bold text-slate-200">$50</div>
+                        <div class="text-[10px] sm:text-[11px] text-slate-400 font-mono uppercase mt-1">Exterior Ceramic Soap</div>
+                    </div>
+                    <div onclick="navigateTo('services')" class="glass-card p-4 sm:p-5 rounded-xl cursor-pointer">
+                        <div class="font-mono text-xl sm:text-2xl font-bold text-slate-200">$60</div>
+                        <div class="text-[10px] sm:text-[11px] text-slate-400 font-mono uppercase mt-1">Interior Precision Clean</div>
+                    </div>
+                    <div onclick="navigateTo('services')" class="glass-card p-4 sm:p-5 rounded-xl cursor-pointer">
+                        <div class="font-mono text-xl sm:text-2xl font-bold text-cyanGlow">$100</div>
+                        <div class="text-[10px] sm:text-[11px] text-slate-400 font-mono uppercase mt-1">Complete Package ($10 Off)</div>
+                    </div>
+                    <div onclick="navigateTo('ceramic')" class="glass-card p-4 sm:p-5 rounded-xl cursor-pointer">
+                        <div class="font-mono text-xl sm:text-2xl font-bold text-emerald-400">SiO2</div>
+                        <div class="text-[10px] sm:text-[11px] text-slate-400 font-mono uppercase mt-1">Hydrophobic Shield</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Page Portals -->
+            <section class="space-y-6">
+                <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                    <h2 class="text-xl sm:text-2xl font-bold font-heading text-white">Explore Pages</h2>
+                    <span class="text-xs font-mono text-cyanGlow">01 // NAVIGATE</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div onclick="navigateTo('services')" class="glass-card p-6 rounded-2xl space-y-4 cursor-pointer group">
+                        <div class="w-10 h-10 rounded-xl bg-cyanGlow/10 text-cyanGlow flex items-center justify-center text-lg border border-cyanGlow/30 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-tags"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white font-heading group-hover:text-cyanGlow transition-colors">Services & Pricing</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            View transparent flat-rate pricing for exterior, interior, and complete package detailing.
+                        </p>
+                        <div class="text-xs font-mono text-cyanGlow flex items-center gap-2 pt-2">
+                            <span>Open Page</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </div>
+                    </div>
+
+                    <div onclick="navigateTo('ceramic')" class="glass-card p-6 rounded-2xl space-y-4 cursor-pointer group">
+                        <div class="w-10 h-10 rounded-xl bg-violetGlow/20 text-violet-400 flex items-center justify-center text-lg border border-violetGlow/30 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white font-heading group-hover:text-cyanGlow transition-colors">Ceramic Soap Science</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Learn how active silica SiO2 polymer formulas deliver hydrophobicity and glossy clear-coat protection.
+                        </p>
+                        <div class="text-xs font-mono text-cyanGlow flex items-center gap-2 pt-2">
+                            <span>Open Page</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </div>
+                    </div>
+
+                    <div onclick="navigateTo('process')" class="glass-card p-6 rounded-2xl space-y-4 cursor-pointer group">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/30 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white font-heading group-hover:text-cyanGlow transition-colors">Full Cleaning Process</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Understand our systematic exterior ceramic foam, plush microfiber towel hand dry, and deep interior detailing process.
+                        </p>
+                        <div class="text-xs font-mono text-cyanGlow flex items-center gap-2 pt-2">
+                            <span>Open Page</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE 2: SERVICES & PRICING PAGE -->
+        <div id="page-services" class="page-view space-y-10 sm:space-y-12">
+            
+            <!-- Page Header / Breadcrumb -->
+            <div class="border-b border-white/10 pb-6 space-y-2">
+                <div class="font-mono text-xs text-cyanGlow tracking-widest uppercase">
+                    <a href="#home" onclick="navigateTo('home')" class="hover:underline">HOME</a> / SERVICES & PRICING
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-bold text-white font-heading">Flat-Rate Packages</h1>
+                <p class="text-slate-400 text-xs sm:text-sm font-mono max-w-xl">
+                    No hidden add-on fees or surcharges. Transparent pricing tailored for standard passenger cars, sedans, and SUVs.
+                </p>
+            </div>
+
+            <!-- Service Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+
+                <!-- OPTION 1: $50 EXTERIOR -->
+                <div class="glass-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between font-mono text-xs text-slate-400">
+                            <span>TIER 01</span>
+                            <span class="text-cyanGlow">~ 45 MINS</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white font-heading">Exterior Wash</h3>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-4xl font-extrabold font-mono text-white">$50</span>
+                            <span class="text-xs font-mono text-slate-400">standard rate</span>
+                        </div>
+                        <p class="text-slate-300 text-xs leading-relaxed">
+                            High-pressure wash infused with SiO2 ceramic shampoo that lifts grime while depositing a protective hydrophobic barrier.
+                        </p>
+                        <ul class="space-y-3 text-xs text-slate-300 border-t border-white/10 pt-4 font-sans">
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Ceramic-infused foam shampoo wash</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>High-pressure rinse & wheel faces clean</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Streak-free exterior window clarity polish</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Scratch-free plush microfiber towel hand dry</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="setBookingPackage(50); navigateTo('booking');" class="w-full py-3.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-cyanGlow hover:text-slate-950 font-mono text-xs font-bold text-cyanGlow transition-all uppercase tracking-wider">
+                        Book $50 Exterior
+                    </button>
+                </div>
+
+                <!-- OPTION 2: $60 INTERIOR -->
+                <div class="glass-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between font-mono text-xs text-slate-400">
+                            <span>TIER 02</span>
+                            <span class="text-cyanGlow">~ 60 MINS</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white font-heading">Interior Cleaning</h3>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-4xl font-extrabold font-mono text-white">$60</span>
+                            <span class="text-xs font-mono text-slate-400">maintenance rate *</span>
+                        </div>
+                        <p class="text-slate-300 text-xs leading-relaxed">
+                            Maintenance cabin restoration focusing on deep vacuuming, dashboard wipe-down, console, door panels, and glass.
+                        </p>
+                        <p class="text-[11px] font-mono text-amber-400/90 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+                            <i class="fa-solid fa-circle-info mr-1"></i> * Price may vary for extreme interior soil or pet hair.
+                        </p>
+                        <ul class="space-y-3 text-xs text-slate-300 border-t border-white/10 pt-4 font-sans">
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Deep vacuuming of seats, carpets & trunk</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Dashboard, steering & console dust & sanitize</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Door cards, pockets & handles detail wiped</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Interior glass clarity polish</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="setBookingPackage(60); navigateTo('booking');" class="w-full py-3.5 rounded-xl bg-white/[0.05] border border-white/10 hover:bg-cyanGlow hover:text-slate-950 font-mono text-xs font-bold text-cyanGlow transition-all uppercase tracking-wider">
+                        Book $60 Interior
+                    </button>
+                </div>
+
+                <!-- OPTION 3: $100 FULL DETAIL -->
+                <div class="glass-card-featured rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-6 relative overflow-hidden">
+                    <div class="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-cyanGlow text-slate-950 font-mono font-extrabold text-[10px] uppercase tracking-wider">
+                        <i class="fa-solid fa-star text-[9px]"></i> MAINTENANCE SPECIAL
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between font-mono text-xs text-slate-400">
+                            <span class="text-cyanGlow font-semibold">TIER 03 // FULL</span>
+                            <span class="text-cyanGlow">~ 1.5 - 2 HRS</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white font-heading">Full Detail Package</h3>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-4xl font-extrabold font-mono text-emerald-400">$100</span>
+                            <span class="text-xs font-mono text-slate-400">starting rate *</span>
+                        </div>
+                        <p class="text-slate-200 text-xs leading-relaxed">
+                            Combines standard Exterior Wash ($50) and Interior Cleaning ($60) for routine maintenance detailing ($10 savings).
+                        </p>
+                        <p class="text-[11px] font-mono text-amber-300 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/30">
+                            <i class="fa-solid fa-triangle-exclamation mr-1 text-amber-400"></i> <strong>Note:</strong> $100 covers standard maintenance. Severe interior soiling, heavy pet hair, or deep mud may incur an additional charge upon inspection.
+                        </p>
+                        <ul class="space-y-3 text-xs text-slate-200 border-t border-white/10 pt-4 font-sans">
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span><strong>Complete Ceramic Exterior:</strong> Foam wash, pressure rinse & microfiber hand dry</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span><strong>Complete Interior Detail:</strong> Deep vacuum, dash/console & panels</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Full interior & exterior window clarity</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i class="fa-solid fa-check text-cyanGlow mt-0.5"></i>
+                                <span>Door jambs & entry sill wipe-down</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button onclick="setBookingPackage(100); navigateTo('booking');" class="glow-cyan w-full py-3.5 rounded-xl bg-cyanGlow hover:bg-cyan-300 font-mono text-xs font-bold text-slate-950 transition-all uppercase tracking-wider">
+                        Book Full Maintenance ($100)
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Mandatory Vehicle Prep & Condition Policy Banner -->
+            <div class="p-5 sm:p-6 rounded-2xl border-2 border-amber-500/60 bg-gradient-to-r from-amber-950/60 via-red-950/30 to-slate-900/90 shadow-[0_0_25px_rgba(245,158,11,0.25)] flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 text-xl border border-amber-500/40">
+                    <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+                </div>
+                <div class="text-xs sm:text-sm text-slate-200 leading-relaxed space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-mono font-extrabold text-[10px] uppercase">MAINTENANCE & CONDITION POLICY</span>
+                        <strong class="text-amber-300 font-heading text-sm sm:text-base">$100 Flat Rate is for Standard Maintenance Detail</strong>
+                    </div>
+                    <p class="text-amber-100/90 font-medium text-xs">
+                        Our $100 price point is designed as a routine maintenance detail. Prices may vary if your vehicle requires extreme interior restoration (e.g., heavy pet hair, severe dirt buildup, mold, or extensive staining). Please clear all personal items and bulk debris before your slot.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 3: CERAMIC TECHNOLOGY PAGE -->
+        <div id="page-ceramic" class="page-view space-y-10 sm:space-y-12">
+            
+            <div class="border-b border-white/10 pb-6 space-y-2">
+                <div class="font-mono text-xs text-cyanGlow tracking-widest uppercase">
+                    <a href="#home" onclick="navigateTo('home')" class="hover:underline">HOME</a> / CERAMIC TECHNOLOGY
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-bold text-white font-heading">SiO2 Ceramic Shampoo Tech</h1>
+                <p class="text-slate-400 text-xs sm:text-sm font-mono max-w-xl">
+                    Standard wax washes wash off in days. Our active silicon dioxide (SiO2) formula bonds directly to paint clear coat.
+                </p>
+            </div>
+
+            <div class="glass-card p-6 sm:p-10 rounded-3xl border-cyanGlow/30 space-y-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-5">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyanGlow/10 border border-cyanGlow/30 text-cyanGlow font-mono text-xs">
+                            <i class="fa-solid fa-flask"></i> CHEMICAL COMPOSITION
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white font-heading">How SiO2 Hydrophobic Barriers Function</h2>
+                        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                            Unlike traditional car soaps that simply float away surface dust, SiO2 ceramic foam contains micro-emulsified silica polymers. As the soapy foam is applied and rinsed off, these polymers leave behind an invisible, slick shield that increases surface tension.
+                        </p>
+                        <div class="space-y-3 font-mono text-xs text-slate-300">
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/10">
+                                <i class="fa-solid fa-droplet text-cyanGlow text-base"></i>
+                                <span>High Contact Angle Water Beading (>105°)</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/10">
+                                <i class="fa-solid fa-shield-halved text-cyanGlow text-base"></i>
+                                <span>Road Grime & Brake Dust Repellency</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/10">
+                                <i class="fa-solid fa-sun text-cyanGlow text-base"></i>
+                                <span>UV Oxidation & Environmental Protection</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Visualizer Box -->
+                    <div class="glass-card p-6 rounded-2xl border-white/10 space-y-6 text-center">
+                        <h3 class="text-lg font-bold text-white font-heading">Hydrophobic Performance Comparison</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 rounded-xl bg-rose-950/20 border border-rose-500/20 space-y-2">
+                                <div class="text-xs font-mono text-rose-400 font-bold">Standard Wash</div>
+                                <div class="text-[11px] text-slate-400">Water sheets out flat, leaving water spots and dirt traps.</div>
+                                <div class="w-full h-1.5 bg-rose-500/30 rounded-full mt-2"></div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-cyanGlow/10 border border-cyanGlow/30 space-y-2">
+                                <div class="text-xs font-mono text-cyanGlow font-bold">SiO2 Ceramic Wash</div>
+                                <div class="text-[11px] text-slate-300">Water instantly beads and rolls off during driving.</div>
+                                <div class="w-full h-1.5 bg-cyanGlow rounded-full mt-2"></div>
+                            </div>
+                        </div>
+                        <button onclick="setBookingPackage(50); navigateTo('booking');" class="glow-cyan w-full py-3 rounded-xl bg-cyanGlow text-slate-950 font-mono font-bold text-xs uppercase tracking-wider">
+                            Experience Ceramic Exterior ($50)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 4: PROCESS PAGE -->
+        <div id="page-process" class="page-view space-y-10 sm:space-y-12">
+            
+            <div class="border-b border-white/10 pb-6 space-y-2">
+                <div class="font-mono text-xs text-cyanGlow tracking-widest uppercase">
+                    <a href="#home" onclick="navigateTo('home')" class="hover:underline">HOME</a> / FULL CLEANING & PREP PROCESS
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-bold text-white font-heading">Full Cleaning & Prep Tour</h1>
+                <p class="text-slate-400 text-xs sm:text-sm font-mono max-w-xl">
+                    A standardized, scratch-free exterior and deep interior cleaning process. Follow our simple prep checklist for an optimal detailing experience.
+                </p>
+            </div>
+
+            <div class="glass-card-featured p-6 sm:p-8 rounded-2xl border-cyanGlow/40 space-y-6">
+                <div class="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-4">
+                    <div>
+                        <span class="px-2.5 py-1 rounded bg-cyanGlow/20 text-cyanGlow font-mono font-bold text-[10px] uppercase tracking-wider">
+                            <i class="fa-solid fa-list-check mr-1"></i> MANDATORY PREP TOUR & CHECKLIST
+                        </span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white font-heading mt-2">Preparing Your Vehicle Step Tour</h2>
+                        <p class="text-slate-300 text-xs mt-1">Review these 4 essential steps prior to your appointment to ensure maximum detail efficiency.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono text-xs">
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-2 relative">
+                        <div class="text-cyanGlow font-bold flex items-center justify-between">
+                            <span>STEP 01 // DE-CLUTTER</span>
+                            <i class="fa-solid fa-box-open text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Clear Personal Belongings</h4>
+                        <p class="text-[11px] text-slate-300 font-sans leading-relaxed">Remove personal items, child seats, workout gear, and valuables from seats, trunk, and door pockets.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-2 relative">
+                        <div class="text-cyanGlow font-bold flex items-center justify-between">
+                            <span>STEP 02 // TRASH</span>
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Remove Bulk Garbage</h4>
+                        <p class="text-[11px] text-slate-300 font-sans leading-relaxed">Discard large fast-food wrappers and loose trash so detailers can immediately start deep vacuuming.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-2 relative">
+                        <div class="text-cyanGlow font-bold flex items-center justify-between">
+                            <span>STEP 03 // ACCESS</span>
+                            <i class="fa-solid fa-key text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Keys & Unlocking</h4>
+                        <p class="text-[11px] text-slate-300 font-sans leading-relaxed">Ensure vehicle key fob is available and interior access is unlocked when the technician arrives.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-2 relative">
+                        <div class="text-cyanGlow font-bold flex items-center justify-between">
+                            <span>STEP 04 // PARKING</span>
+                            <i class="fa-solid fa-square-parking text-sm"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-sm">Provide Clearance</h4>
+                        <p class="text-[11px] text-slate-300 font-sans leading-relaxed">Park in an accessible, safe area with clear room on both sides to fully open all doors and trunk.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="glass-card p-6 rounded-2xl space-y-4 relative">
+                    <div class="font-mono text-3xl font-extrabold text-cyanGlow/40">STEP 01</div>
+                    <h3 class="text-lg font-bold text-white font-heading">Pre-Rinse & SiO2 Foam</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        High-pressure pre-rinse lifts surface grit, followed by a dense SiO2 ceramic foam bath that encapsulates and dissolves road grime.
+                    </p>
+                    <div class="text-[11px] font-mono text-slate-400 pt-2 border-t border-white/10">
+                        <i class="fa-solid fa-clock mr-1 text-cyanGlow"></i> ~ 15 Mins
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl space-y-4 relative">
+                    <div class="font-mono text-3xl font-extrabold text-cyanGlow/40">STEP 02</div>
+                    <h3 class="text-lg font-bold text-white font-heading">Full Interior Cabin Detailing</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Deep vacuuming of carpets, floor mats, seats, and trunk area. Complete dust extraction and precision wipe-down of dashboard, console, door panels, and interior glass.
+                    </p>
+                    <div class="text-[11px] font-mono text-slate-400 pt-2 border-t border-white/10">
+                        <i class="fa-solid fa-clock mr-1 text-cyanGlow"></i> ~ 45 - 60 Mins
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl space-y-4 relative">
+                    <div class="font-mono text-3xl font-extrabold text-emerald-400/40">STEP 03</div>
+                    <h3 class="text-lg font-bold text-white font-heading">Rinse, Microfiber Towel Dry & Handover</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        High-pressure hydrophobic ceramic rinse, careful hand-drying with ultra-soft plush microfiber towels to prevent water spots, door jamb cleanup, and final inspection.
+                    </p>
+                    <div class="text-[11px] font-mono text-slate-400 pt-2 border-t border-white/10">
+                        <i class="fa-solid fa-check text-emerald-400 mr-1"></i> Final Quality Check
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center pt-4">
+                <button onclick="navigateTo('booking')" class="glow-cyan px-8 py-3.5 rounded-xl bg-cyanGlow text-slate-950 font-mono font-bold text-xs uppercase tracking-wider">
+                    Proceed to Reservation Form
+                </button>
+            </div>
+        </div>
+
+        <!-- PAGE 5: BOOKING PAGE -->
+        <div id="page-booking" class="page-view space-y-10 sm:space-y-12">
+            
+            <div class="border-b border-white/10 pb-6 space-y-2">
+                <div class="font-mono text-xs text-cyanGlow tracking-widest uppercase">
+                    <a href="#home" onclick="navigateTo('home')" class="hover:underline">HOME</a> / RESERVATION SYSTEM
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-bold text-white font-heading">Book Your Detail Slot</h1>
+                <p class="text-slate-400 text-xs sm:text-sm font-mono max-w-xl">
+                    Select your service package, choose a date, and submit your request directly to our live Supabase database.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Package Selection Left Column -->
+                <div class="lg:col-span-7 glass-card p-6 sm:p-8 rounded-2xl space-y-6">
+                    <label class="font-mono text-xs text-cyanGlow tracking-wider uppercase block font-semibold">
+                        STEP 1: SELECT YOUR SERVICE PACKAGE
+                    </label>
+
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/[0.02] cursor-pointer hover:bg-white/[0.06] transition-all" onclick="setBookingPackage(50)">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" id="page-radio-50" name="booking-package" value="50" class="w-4 h-4 text-cyanGlow accent-cyanGlow">
+                                <div>
+                                    <span class="font-bold text-sm text-white block">Exterior Wash</span>
+                                    <span class="text-xs text-slate-400 font-mono">SiO2 foam wash, rinse, microfiber towel dry & glass polish</span>
+                                </div>
+                            </div>
+                            <span class="font-mono font-bold text-cyanGlow text-base">$50</span>
+                        </label>
+
+                        <label class="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/[0.02] cursor-pointer hover:bg-white/[0.06] transition-all" onclick="setBookingPackage(60)">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" id="page-radio-60" name="booking-package" value="60" class="w-4 h-4 text-cyanGlow accent-cyanGlow">
+                                <div>
+                                    <span class="font-bold text-sm text-white block">Interior Cleaning (Maintenance)</span>
+                                    <span class="text-xs text-slate-400 font-mono">Deep vacuum, dash/console & interior glass (*Condition dependent)</span>
+                                </div>
+                            </div>
+                            <span class="font-mono font-bold text-cyanGlow text-base">$60</span>
+                        </label>
+
+                        <label class="flex items-center justify-between p-4 rounded-xl border border-cyanGlow/40 bg-cyanGlow/10 cursor-pointer hover:bg-cyanGlow/20 transition-all" onclick="setBookingPackage(100)">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" id="page-radio-100" name="booking-package" value="100" checked class="w-4 h-4 text-cyanGlow accent-cyanGlow">
+                                <div>
+                                    <span class="font-bold text-sm text-white block">Full Detail Maintenance Package</span>
+                                    <span class="text-xs text-cyan-300 font-mono">Complete Exterior Ceramic + Standard Interior ($10 Off)</span>
+                                </div>
+                            </div>
+                            <span class="font-mono font-bold text-emerald-400 text-lg">$100</span>
+                        </label>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-amber-950/50 border-2 border-amber-500/60 font-mono text-xs text-amber-100 flex items-start gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40 mt-0.5">
+                            <i class="fa-solid fa-triangle-exclamation text-sm animate-pulse"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-amber-400 font-bold uppercase tracking-wider block text-[11px]">MAINTENANCE vs EXTREME CONDITION NOTICE</span>
+                            <p class="text-slate-200 text-xs font-normal">
+                                The $100 rate is tailored for routine maintenance detailing. Extreme interior dirt, heavy pet hair, or biohazards may require a price adjustment upon technician inspection. Please clear personal belongings prior to service.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact & Schedule Form Right Column -->
+                <div class="lg:col-span-5 glass-card p-6 sm:p-8 rounded-2xl flex flex-col justify-between space-y-6 border-cyanGlow/30">
+                    <form id="booking-form" onsubmit="submitBookingForm(event)" class="space-y-4">
+                        <div class="border-b border-white/10 pb-4">
+                            <span class="font-mono text-[11px] text-slate-400 uppercase tracking-widest block mb-1">RESERVATION SUMMARY</span>
+                            <div class="flex items-baseline justify-between">
+                                <span class="text-3xl font-extrabold font-mono text-cyanGlow" id="summary-price">$100</span>
+                                <span class="text-xs font-mono text-slate-300" id="summary-title">Full Detail Package</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3.5 font-mono text-xs">
+                            <div>
+                                <label for="cust-name" class="block text-slate-400 mb-1 text-[11px]">FULL NAME * <span class="text-slate-600">(2–100)</span></label>
+                                <input type="text" id="cust-name" required maxlength="100" minlength="2" placeholder="Alex Johnson" class="w-full bg-[#07080c] border border-white/15 rounded-xl px-3.5 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-cyanGlow transition-colors">
+                            </div>
+
+                            <div>
+                                <label for="cust-phone" class="block text-slate-400 mb-1 text-[11px]">PHONE NUMBER * <span class="text-slate-600">(7–30)</span></label>
+                                <input type="tel" id="cust-phone" required maxlength="30" minlength="7" placeholder="(555) 234-5678" class="w-full bg-[#07080c] border border-white/15 rounded-xl px-3.5 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-cyanGlow transition-colors">
+                            </div>
+
+                            <div>
+                                <label for="cust-vehicle" class="block text-slate-400 mb-1 text-[11px]">VEHICLE YEAR / MAKE / MODEL * <span class="text-slate-600">(2–120)</span></label>
+                                <input type="text" id="cust-vehicle" required maxlength="120" minlength="2" placeholder="2023 Tesla Model 3" class="w-full bg-[#07080c] border border-white/15 rounded-xl px-3.5 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-cyanGlow transition-colors">
+                            </div>
+
+                            <div>
+                                <label for="cust-date" class="block text-slate-400 mb-1 text-[11px]">PREFERRED DATE *</label>
+                                <input type="date" id="cust-date" required class="w-full bg-[#07080c] border border-white/15 rounded-xl px-3.5 py-3 text-white focus:outline-none focus:border-cyanGlow transition-colors">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="glow-cyan w-full py-3.5 rounded-xl bg-cyanGlow hover:bg-cyan-300 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 mt-4">
+                            <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                            <span id="submit-btn-text">Submit to Supabase</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- PAGE 6: FAQ PAGE -->
+        <div id="page-faq" class="page-view space-y-10 sm:space-y-12">
+            
+            <div class="border-b border-white/10 pb-6 space-y-2">
+                <div class="font-mono text-xs text-cyanGlow tracking-widest uppercase">
+                    <a href="#home" onclick="navigateTo('home')" class="hover:underline">HOME</a> / KNOWLEDGE BASE
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-bold text-white font-heading">Frequently Asked Questions</h1>
+                <p class="text-slate-400 text-xs sm:text-sm font-mono max-w-xl">
+                    Got questions? Find clear answers regarding our services, ceramic technology, and vehicle prep guidelines.
+                </p>
+            </div>
+
+            <div class="max-w-4xl space-y-3">
+                <div class="faq-item glass-card rounded-xl p-5 cursor-pointer select-none" onclick="toggleAccordion(this)">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-white font-heading">Is the $100 Full Detail package a flat rate for all vehicle conditions?</h4>
+                        <i class="fa-solid fa-chevron-down text-xs text-cyanGlow faq-chevron transition-transform"></i>
+                    </div>
+                    <div class="faq-answer text-xs text-slate-300 pt-3 leading-relaxed">
+                        The $100 Full Detail is structured as a standard maintenance detail. If a vehicle requires extreme interior cleaning—such as heavy pet hair extraction, severe mud accumulation, deep carpet staining, or biohazard cleanup—the price may vary and an adjusted estimate will be provided upon initial vehicle inspection.
+                    </div>
+                </div>
+
+                <div class="faq-item glass-card rounded-xl p-5 cursor-pointer select-none" onclick="toggleAccordion(this)">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-white font-heading">What is included in the $100 Full Detail package?</h4>
+                        <i class="fa-solid fa-chevron-down text-xs text-cyanGlow faq-chevron transition-transform"></i>
+                    </div>
+                    <div class="faq-answer text-xs text-slate-300 pt-3 leading-relaxed">
+                        The $100 Full Detail combines our $50 Exterior Wash and $60 Interior Cleaning into one complete package (saving $10). It covers ceramic foam wash, pressure rinse, microfiber towel hand drying, exterior & interior glass polish, vacuuming, dash & console cleanup, and door jamb wipes.
+                    </div>
+                </div>
+
+                <div class="faq-item glass-card rounded-xl p-5 cursor-pointer select-none" onclick="toggleAccordion(this)">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-white font-heading">Do I need to prep or clear out my car before my appointment?</h4>
+                        <i class="fa-solid fa-chevron-down text-xs text-cyanGlow faq-chevron transition-transform"></i>
+                    </div>
+                    <div class="faq-answer text-xs text-slate-300 pt-3 leading-relaxed">
+                        Yes! Please follow our 4-step Vehicle Prep Tour: remove excess bulky debris, personal items, child seats, and valuables prior to your slot. Clearing your car in advance helps us maintain our fast turnaround times and flat-rate pricing.
+                    </div>
+                </div>
+
+                <div class="faq-item glass-card rounded-xl p-5 cursor-pointer select-none" onclick="toggleAccordion(this)">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-white font-heading">What are the benefits of Ceramic Soap?</h4>
+                        <i class="fa-solid fa-chevron-down text-xs text-cyanGlow faq-chevron transition-transform"></i>
+                    </div>
+                    <div class="faq-answer text-xs text-slate-300 pt-3 leading-relaxed">
+                        Ceramic soap contains SiO2 silica polymers. As we wash your vehicle, it leaves behind a sleek hydrophobic protective layer that repels water, prevents road film buildup, and yields an elevated glossy finish.
+                    </div>
+                </div>
+
+                <div class="faq-item glass-card rounded-xl p-5 cursor-pointer select-none" onclick="toggleAccordion(this)">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-white font-heading">How long does a detailing session take?</h4>
+                        <i class="fa-solid fa-chevron-down text-xs text-cyanGlow faq-chevron transition-transform"></i>
+                    </div>
+                    <div class="faq-answer text-xs text-slate-300 pt-3 leading-relaxed">
+                        An Exterior Wash ($50) takes approximately 45 minutes. An Interior Cleaning ($60) takes around 60 minutes. The Full Detail Package ($100) takes roughly 1.5 to 2 hours.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 7: ADMIN MANAGEMENT PAGE -->
+        <div id="page-admin" class="page-view space-y-8 sm:space-y-10">
+            
+            <div class="border-b border-white/10 pb-6 space-y-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="font-mono text-xs text-cyanGlow tracking-widest uppercase">
+                        RESTRICTED MANAGEMENT SYSTEM
+                    </div>
+                    <h1 class="text-3xl font-bold text-white font-heading">Admin Booking Console</h1>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="fetchAndRenderBookings()" class="px-3.5 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-mono text-slate-300 hover:text-cyanGlow transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-right text-[11px]"></i> Refresh Cloud Data
+                    </button>
+                    <button onclick="lockAdminPortal()" class="px-3.5 py-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs font-mono text-rose-400 hover:bg-rose-500/20 transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-lock text-[11px]"></i> Lock Portal
+                    </button>
+                </div>
+            </div>
+
+            <!-- Database Connection Status Banner inside Admin -->
+            <div id="admin-db-status-banner" class="p-4 rounded-xl border border-white/10 bg-white/[0.02] font-mono text-xs text-slate-300 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span id="admin-db-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                    <span id="admin-db-status-text">Checking Supabase Database Connection...</span>
+                </div>
+                <button onclick="checkSupabaseConnection(true)" class="text-cyanGlow hover:underline text-[11px]">
+                    Run Diagnostics
+                </button>
+            </div>
+
+            <!-- PHONE PUSH NOTIFICATIONS -->
+            <div class="glass-card p-5 rounded-2xl border-cyanGlow/20 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <div class="font-mono text-xs text-cyanGlow tracking-widest uppercase">BOOKING ALERTS</div>
+                        <h2 class="text-lg font-bold text-white font-heading mt-1">Phone Push Notifications</h2>
+                        <p class="text-xs text-slate-400 mt-1 max-w-2xl">Get a push notification on this device when a new booking is submitted. No phone number or SMS service is required.</p>
+                    </div>
+                    <span id="push-status-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[11px] font-mono whitespace-nowrap">
+                        <span id="push-status-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                        <span id="push-status-text">NOT CONFIGURED</span>
+                    </span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button id="enable-push-btn" type="button" onclick="enablePushNotifications()" class="px-4 py-2.5 rounded-lg bg-cyanGlow text-slate-950 font-mono font-bold text-xs uppercase tracking-wider hover:bg-cyan-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-bell mr-1.5"></i> Enable Phone Alerts
+                    </button>
+                    <button id="disable-push-btn" type="button" onclick="disablePushNotifications()" class="hidden px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 font-mono font-bold text-xs uppercase tracking-wider hover:border-rose-400/40 hover:text-rose-300 transition-all">
+                        <i class="fa-solid fa-bell-slash mr-1.5"></i> Disable Alerts
+                    </button>
+                    <button id="test-push-btn" type="button" onclick="testPushNotification()" class="px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 font-mono font-bold text-xs uppercase tracking-wider hover:border-cyanGlow/40 hover:text-cyanGlow transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-vial mr-1.5"></i> Test This Device
+                    </button>
+                </div>
+
+                <p id="push-help-text" class="text-[11px] text-slate-500 font-mono leading-relaxed">
+                    Push notifications require HTTPS and the separate <span class="text-slate-300">sw.js</span> service-worker file. On iPhone, open the site as a Home Screen web app before enabling notifications.
+                </p>
+            </div>
+
+            <!-- Dashboard Stats Summary -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono text-xs">
+                <div class="glass-card p-4 rounded-xl border-white/10">
+                    <div class="text-slate-400 text-[10px] uppercase">TOTAL BOOKINGS</div>
+                    <div class="text-2xl font-bold text-white mt-1" id="stat-total-count">0</div>
+                </div>
+                <div class="glass-card p-4 rounded-xl border-amber-500/30">
+                    <div class="text-amber-400 text-[10px] uppercase">PENDING</div>
+                    <div class="text-2xl font-bold text-amber-400 mt-1" id="stat-pending-count">0</div>
+                </div>
+                <div class="glass-card p-4 rounded-xl border-emerald-500/30">
+                    <div class="text-emerald-400 text-[10px] uppercase">CONFIRMED</div>
+                    <div class="text-2xl font-bold text-emerald-400 mt-1" id="stat-confirmed-count">0</div>
+                </div>
+                <div class="glass-card p-4 rounded-xl border-cyanGlow/30">
+                    <div class="text-cyanGlow text-[10px] uppercase">EST. REVENUE</div>
+                    <div class="text-2xl font-bold text-cyanGlow mt-1" id="stat-revenue">$0</div>
+                </div>
+            </div>
+
+            <!-- Booking Requests Queue -->
+            <div class="glass-card p-6 rounded-2xl space-y-4 border-white/10">
+                <div class="flex items-center justify-between font-mono text-xs border-b border-white/10 pb-3">
+                    <span class="text-slate-400 font-bold">INCOMING RESERVATION QUEUE</span>
+                    <span class="text-cyanGlow">SUPABASE LIVE SYNC</span>
+                </div>
+
+                <div id="admin-bookings-list" class="space-y-3 font-mono text-xs">
+                    <div class="text-center py-12 text-slate-500">Loading incoming requests...</div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-white/10 bg-[#040508] py-10 px-4 sm:px-6 lg:px-12 relative z-10 font-mono text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex flex-col items-center sm:items-start gap-1 text-center sm:text-left">
+                <a href="#home" onclick="navigateTo('home')" class="text-white font-extrabold tracking-widest text-sm hover:text-cyanGlow">
+                    URBAN DETAIL CO.
+                </a>
+                <span class="text-[11px] text-slate-500">Precision Auto Care & SiO2 Ceramic Wash</span>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-center gap-6 text-xs">
+                <a href="#services" onclick="navigateTo('services')" class="hover:text-cyanGlow">Services</a>
+                <a href="#ceramic" onclick="navigateTo('ceramic')" class="hover:text-cyanGlow">Ceramic Tech</a>
+                <a href="#process" onclick="navigateTo('process')" class="hover:text-cyanGlow">Process</a>
+                <a href="#booking" onclick="navigateTo('booking')" class="hover:text-cyanGlow">Booking</a>
+                <a href="#faq" onclick="navigateTo('faq')" class="hover:text-cyanGlow">FAQ</a>
+            </div>
+
+            <div class="text-[11px] text-slate-500 text-center sm:text-right">
+                <span onclick="openAdminPasscodeModal()" class="cursor-pointer hover:text-cyanGlow transition-colors" title="Open Admin Portal">
+                    © 2026 Urban Detail Co. • <i class="fa-solid fa-lock text-[10px]"></i> Admin Portal
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BOOKING RESULT MODAL -->
+    <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-card max-w-md w-full p-6 text-center space-y-4 border-cyanGlow/50 transform scale-95 transition-transform duration-300" id="booking-modal-card">
+            <div id="modal-icon-container" class="w-14 h-14 rounded-full bg-cyanGlow/20 text-cyanGlow mx-auto flex items-center justify-center text-2xl border border-cyanGlow/40">
+                <i class="fa-solid fa-circle-check" id="modal-icon"></i>
+            </div>
+            
+            <h3 class="text-xl font-bold text-white font-heading" id="modal-title">Booking Submitted!</h3>
+            
+            <p class="text-xs text-slate-300 leading-relaxed font-mono">
+                Reservation ID: <span id="saved-booking-id" class="text-cyanGlow font-bold">...</span>
+            </p>
+
+            <div id="modal-storage-badge" class="p-3 rounded-xl font-mono text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>
+                <span id="modal-storage-text">Successfully saved directly to Supabase cloud!</span>
+            </div>
+
+            <p id="modal-error-details" class="text-[11px] font-mono text-rose-300 bg-rose-950/40 p-3 rounded-xl border border-rose-500/30 text-left leading-relaxed hidden">
+            </p>
+
+            <button onclick="closeModal()" class="w-full py-3 rounded-xl bg-cyanGlow text-slate-950 font-mono font-bold text-xs uppercase hover:bg-cyan-300 transition-all">
+                Close Window
+            </button>
+        </div>
+    </div>
+
+    <!-- ADMIN AUTHENTICATION MODAL -->
+    <div id="admin-passcode-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-auth-title">
+        <div class="glass-card max-w-sm w-full p-6 rounded-2xl border-cyanGlow/40 text-center space-y-5 shadow-2xl transform scale-95 transition-transform duration-300" id="passcode-card">
+            <div class="w-12 h-12 rounded-xl bg-cyanGlow/10 text-cyanGlow flex items-center justify-center mx-auto text-xl border border-cyanGlow/30">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 id="admin-auth-title" class="text-lg font-bold text-white font-heading">Admin Sign In</h3>
+                <p class="text-xs text-slate-400 font-mono mt-1">Use a Supabase Auth account assigned the admin role.</p>
+            </div>
+            <form onsubmit="verifyAdminPasscode(event)" class="space-y-3">
+                <input type="email" id="admin-email-input" required autocomplete="username" placeholder="admin@example.com" class="w-full bg-[#07080c] border border-white/20 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-cyanGlow transition-colors">
+                <input type="password" id="admin-passcode-input" required minlength="8" autocomplete="current-password" placeholder="Password" class="w-full bg-[#07080c] border border-white/20 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-cyanGlow transition-colors">
+                <div id="passcode-error-msg" class="text-xs font-mono text-rose-400 hidden" role="alert"></div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeAdminPasscodeModal()" class="w-1/2 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 transition-all">Cancel</button>
+                    <button type="submit" id="admin-auth-submit" class="w-1/2 py-3 rounded-xl bg-cyanGlow text-slate-950 font-bold font-mono text-xs uppercase tracking-wider hover:bg-cyan-300 transition-all">Sign In</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUPABASE CLIENT INTEGRATION & APPLICATION ENGINE -->
+    <script>
+        // The browser may contain only a public/publishable Supabase key.
+        // Never place a service_role or secret key in this file.
+        // Authorization is enforced by Supabase Auth + Postgres RLS.
+        const SUPABASE_URL = 'https://dyvwkfoxqjvobzfapigv.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR5dndrZm94cWp2b2J6ZmFwaWd2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4ODYyOTAsImV4cCI6MjEwNjQ2MjI5MH0.rHRL30Ztcyhe9S4e650mp5ZeBrtFl2nymTs-Ca0Qp68';
+
+        let supabaseClient = null;
+        let dbConnected = false;
+        let lastSupabaseError = null;
+        let bookingsCache = [];
+        let isAdminAuthenticated = false;
+        let adminUser = null;
+
+        // Safe to expose in browser code: this is the VAPID PUBLIC key only.
+        // Never place the VAPID private key or a Supabase service-role key here.
+        const VAPID_PUBLIC_KEY = 'BKMo6aaTXgVzFd8snhJO19m4AggOaIYWSghmjg2-GS2FAyWHjZftr95-a0Ib6INyi5GhlQbMrLTHG0U8tz0_VfA';
+        const PUSH_SERVICE_WORKER_PATH = '/sw.js';
+
+        try {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.warn("Supabase initialization error:", err);
+        }
+
+        // Do not probe the bookings table for anonymous visitors.
+        // Database diagnostics run only after an authenticated admin session exists.
+        async function checkSupabaseConnection(showAlert = false) {
+            if (!supabaseClient) {
+                updateStatusBadge('error', 'SUPABASE SDK MISSING');
+                if (showAlert) alert('The booking service is unavailable. Please try again later.');
+                return false;
+            }
+            if (!(await ensureAdminSession())) {
+                dbConnected = false;
+                updateStatusBadge('success', 'BOOKING SERVICE READY');
+                if (showAlert) alert('The public booking service is ready. Admin diagnostics require sign-in.');
+                return true;
+            }
+            try {
+                const { error } = await supabaseClient.from('bookings').select('id').limit(1);
+                if (error) throw error;
+                dbConnected = true;
+                lastSupabaseError = null;
+                updateStatusBadge('success', 'SUPABASE READY');
+                const textEl = document.getElementById('admin-db-status-text');
+                const dotEl = document.getElementById('admin-db-dot');
+                if (textEl) textEl.innerText = 'Authenticated admin database access verified.';
+                if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+                if (showAlert) alert('Supabase admin database access verified.');
+                return true;
+            } catch (err) {
+                dbConnected = false;
+                lastSupabaseError = err;
+                updateStatusBadge('error', 'DATABASE ACCESS DENIED');
+                if (showAlert) alert('Admin database access could not be verified. Check Supabase RLS configuration.');
+                return false;
+            }
+        }
+
+        function updateStatusBadge(type, text) {
+            const statusDot = document.getElementById('backend-status-dot');
+            const statusText = document.getElementById('backend-status-text');
+            const statusBadge = document.getElementById('backend-status-badge');
+
+            if (!statusBadge || !statusDot || !statusText) return;
+
+            statusText.innerText = text;
+            if (type === 'success') {
+                statusBadge.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono cursor-pointer hover:bg-emerald-500/20 transition-all";
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+            } else if (type === 'warning') {
+                statusBadge.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono cursor-pointer hover:bg-amber-500/20 transition-all";
+                statusDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+            } else {
+                statusBadge.className = "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono cursor-pointer hover:bg-rose-500/20 transition-all";
+                statusDot.className = "w-2 h-2 rounded-full bg-rose-400 animate-pulse";
+            }
+        }
+
+        // Do not persist customer PII in localStorage.
+        // A browser-local fallback would expose it to any same-origin script.
+        const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('udc_page_sync') : null;
+        if (syncChannel) syncChannel.onmessage = () => {
+            if (isAdminAuthenticated) fetchAndRenderBookings();
+        };
+
+        function getLocalBookings() { return []; }
+        function saveLocalBooking() { return false; }
+
+        async function fetchAndRenderBookings() {
+            if (!supabaseClient || !isAdminAuthenticated) {
+                bookingsCache = [];
+                updateAdminUI();
+                return;
+            }
+            try {
+                const { data, error } = await supabaseClient
+                    .from('bookings')
+                    .select('*')
+                    .order('createdAt', { ascending: false });
+                if (error) throw error;
+                bookingsCache = Array.isArray(data) ? data : [];
+                dbConnected = true;
+                lastSupabaseError = null;
+            } catch (err) {
+                bookingsCache = [];
+                dbConnected = false;
+                lastSupabaseError = err;
+                console.warn('Admin booking fetch failed.');
+            }
+            updateAdminUI();
+        }
+
+        let realtimeChannel = null;
+        function setupRealtimeSubscription() {
+            if (!supabaseClient || !isAdminAuthenticated || realtimeChannel) return;
+            try {
+                realtimeChannel = supabaseClient
+                    .channel('admin-bookings')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+                        if (isAdminAuthenticated) fetchAndRenderBookings();
+                    })
+                    .subscribe();
+            } catch (err) {
+                console.warn('Realtime subscription issue.');
+            }
+        }
+
+        async function removeRealtimeSubscription() {
+            if (supabaseClient && realtimeChannel) {
+                try { await supabaseClient.removeChannel(realtimeChannel); } catch (_) {}
+                realtimeChannel = null;
+            }
+        }
+
+        function setPushStatus(type, message) {
+            const dot = document.getElementById('push-status-dot');
+            const text = document.getElementById('push-status-text');
+            const badge = document.getElementById('push-status-badge');
+            if (!dot || !text || !badge) return;
+
+            const states = {
+                success: ['bg-emerald-400', 'bg-emerald-500/10', 'border-emerald-500/20', 'text-emerald-400'],
+                warning: ['bg-amber-400', 'bg-amber-500/10', 'border-amber-500/20', 'text-amber-400'],
+                error: ['bg-rose-400', 'bg-rose-500/10', 'border-rose-500/20', 'text-rose-400'],
+                neutral: ['bg-slate-500', 'bg-white/5', 'border-white/10', 'text-slate-400']
+            };
+            const classes = states[type] || states.neutral;
+            dot.className = `w-2 h-2 rounded-full ${classes[0]}`;
+            badge.className = `inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${classes[1]} border ${classes[2]} ${classes[3]} text-[11px] font-mono whitespace-nowrap`;
+            text.textContent = message;
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        async function getPushRegistration() {
+            if (!('serviceWorker' in navigator)) throw new Error('This browser does not support service workers.');
+            if (!window.isSecureContext) throw new Error('Push notifications require an HTTPS website.');
+            return navigator.serviceWorker.register(PUSH_SERVICE_WORKER_PATH, { scope: '/' });
+        }
+
+        async function getExistingPushSubscription() {
+            try {
+                const registration = await getPushRegistration();
+                return await registration.pushManager.getSubscription();
+            } catch (_) {
+                return null;
+            }
+        }
+
+        async function savePushSubscription(subscription) {
+            if (!supabaseClient || !(await ensureAdminSession())) throw new Error('Admin authentication is required.');
+            const json = subscription.toJSON();
+            const endpoint = typeof json.endpoint === 'string' ? json.endpoint : '';
+            const p256dh = typeof json.keys?.p256dh === 'string' ? json.keys.p256dh : '';
+            const auth = typeof json.keys?.auth === 'string' ? json.keys.auth : '';
+            if (!endpoint || !p256dh || !auth) throw new Error('The push subscription is incomplete.');
+
+            const { error } = await supabaseClient.from('push_subscriptions').upsert({
+                user_id: adminUser.id,
+                endpoint,
+                p256dh,
+                auth,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'endpoint' });
+            if (error) throw error;
+        }
+
+        async function removePushSubscriptionRecord(endpoint) {
+            if (!supabaseClient || !(await ensureAdminSession()) || !endpoint) return;
+            const { error } = await supabaseClient
+                .from('push_subscriptions')
+                .delete()
+                .eq('user_id', adminUser.id)
+                .eq('endpoint', endpoint);
+            if (error) console.warn('Push subscription cleanup failed.');
+        }
+
+        async function refreshPushNotificationUI() {
+            const enableBtn = document.getElementById('enable-push-btn');
+            const disableBtn = document.getElementById('disable-push-btn');
+            const testBtn = document.getElementById('test-push-btn');
+            if (!enableBtn || !disableBtn) return;
+
+            if (!isAdminAuthenticated) {
+                enableBtn.disabled = true;
+                disableBtn.classList.add('hidden');
+                if (testBtn) testBtn.disabled = true;
+                setPushStatus('neutral', 'ADMIN SIGN-IN REQUIRED');
+                return;
+            }
+
+            if (VAPID_PUBLIC_KEY === 'PASTE_VAPID_PUBLIC_KEY_HERE') {
+                enableBtn.disabled = true;
+                disableBtn.classList.add('hidden');
+                if (testBtn) testBtn.disabled = true;
+                setPushStatus('warning', 'ADD VAPID PUBLIC KEY');
+                return;
+            }
+
+            if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+                enableBtn.disabled = true;
+                disableBtn.classList.add('hidden');
+                if (testBtn) testBtn.disabled = true;
+                setPushStatus('error', 'PUSH NOT SUPPORTED');
+                return;
+            }
+
+            if (Notification.permission === 'denied') {
+                enableBtn.disabled = true;
+                disableBtn.classList.add('hidden');
+                if (testBtn) testBtn.disabled = true;
+                setPushStatus('error', 'NOTIFICATIONS BLOCKED');
+                return;
+            }
+
+            try {
+                const subscription = await getExistingPushSubscription();
+                enableBtn.disabled = false;
+                if (subscription) {
+                    disableBtn.classList.remove('hidden');
+                    if (testBtn) testBtn.disabled = false;
+                    setPushStatus('success', 'PHONE ALERTS ON');
+                } else {
+                    disableBtn.classList.add('hidden');
+                    if (testBtn) testBtn.disabled = false;
+                    setPushStatus('neutral', 'PHONE ALERTS OFF');
+                }
+            } catch (err) {
+                enableBtn.disabled = false;
+                disableBtn.classList.add('hidden');
+                if (testBtn) testBtn.disabled = false;
+                setPushStatus('error', 'SETUP REQUIRED');
+            }
+        }
+
+        window.enablePushNotifications = async function() {
+            const button = document.getElementById('enable-push-btn');
+            if (!(await ensureAdminSession())) return openAdminPasscodeModal();
+            if (VAPID_PUBLIC_KEY === 'PASTE_VAPID_PUBLIC_KEY_HERE') {
+                setPushStatus('warning', 'ADD VAPID PUBLIC KEY');
+                alert('Step 6 is ready, but the VAPID public key still needs to be added to the code. The private key must stay server-side.');
+                return;
+            }
+
+            try {
+                if (button) { button.disabled = true; button.textContent = 'Enabling...'; }
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') throw new Error('Notification permission was not granted.');
+
+                const registration = await getPushRegistration();
+                let subscription = await registration.pushManager.getSubscription();
+                if (!subscription) {
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    });
+                }
+
+                await savePushSubscription(subscription);
+                setPushStatus('success', 'PHONE ALERTS ON');
+                document.getElementById('disable-push-btn')?.classList.remove('hidden');
+                alert('Phone booking alerts are enabled on this device.');
+            } catch (err) {
+                console.warn('Push notification setup failed:', err);
+                setPushStatus('error', 'ENABLE FAILED');
+                alert(err?.message || 'Could not enable phone notifications.');
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fa-solid fa-bell mr-1.5"></i> Enable Phone Alerts';
+                }
+                await refreshPushNotificationUI();
+            }
+        };
+
+        window.testPushNotification = async function() {
+            try {
+                if (!(await ensureAdminSession())) return openAdminPasscodeModal();
+                if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+                    throw new Error('This browser does not support push notifications.');
+                }
+                if (!window.isSecureContext) {
+                    throw new Error('Push notifications require an HTTPS website.');
+                }
+                if (Notification.permission !== 'granted') {
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') throw new Error('Notification permission was not granted.');
+                }
+                const registration = await getPushRegistration();
+                await registration.showNotification('Urban Detail — Test Alert', {
+                    body: 'Your browser can display Urban Detail booking alerts on this device.',
+                    icon: '/icon-192.png',
+                    badge: '/icon-192.png',
+                    data: { url: '/' },
+                    requireInteraction: true
+                });
+                setPushStatus('success', 'TEST SENT');
+            } catch (err) {
+                console.warn('Push test failed:', err);
+                setPushStatus('error', 'TEST FAILED');
+                alert(err?.message || 'Could not send the test notification.');
+            }
+        };
+
+        window.disablePushNotifications = async function() {
+            try {
+                const subscription = await getExistingPushSubscription();
+                const endpoint = subscription?.endpoint || '';
+                if (subscription) await subscription.unsubscribe();
+                await removePushSubscriptionRecord(endpoint);
+                setPushStatus('neutral', 'PHONE ALERTS OFF');
+                document.getElementById('disable-push-btn')?.classList.add('hidden');
+            } catch (err) {
+                console.warn('Push notification disable failed:', err);
+                setPushStatus('error', 'DISABLE FAILED');
+            }
+        };
+
+        // Render untrusted database values with DOM text nodes, never HTML interpolation.
+        function updateAdminUI() {
+            const container = document.getElementById('admin-bookings-list');
+            if (!container) return;
+            const combined = Array.isArray(bookingsCache)
+                ? [...bookingsCache].sort((a,b) => (Number(b.createdAt)||0) - (Number(a.createdAt)||0))
+                : [];
+
+            const totalEl = document.getElementById('stat-total-count');
+            const pendingEl = document.getElementById('stat-pending-count');
+            const confirmedEl = document.getElementById('stat-confirmed-count');
+            const revenueEl = document.getElementById('stat-revenue');
+            if (totalEl) totalEl.innerText = combined.length;
+            if (pendingEl) pendingEl.innerText = combined.filter(b => b.status === 'Pending').length;
+            if (confirmedEl) confirmedEl.innerText = combined.filter(b => b.status === 'Confirmed').length;
+            if (revenueEl) revenueEl.innerText = `$${combined.reduce((sum,b) => sum + (Number(b.price)||0),0)}`;
+
+            container.replaceChildren();
+            if (!combined.length) {
+                const empty = document.createElement('div');
+                empty.className = 'text-center py-12 text-slate-500';
+                empty.textContent = isAdminAuthenticated ? 'No active bookings in queue.' : 'Sign in to view bookings.';
+                container.appendChild(empty);
+                return;
+            }
+
+            for (const b of combined) {
+                const card = document.createElement('div');
+                card.className = 'glass-card p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3';
+                const info = document.createElement('div');
+                info.className = 'space-y-1';
+                const top = document.createElement('div');
+                top.className = 'flex items-center gap-2';
+
+                const name = document.createElement('span');
+                name.className = 'font-bold text-white text-sm';
+                name.textContent = String(b.name ?? '');
+                top.appendChild(name);
+
+                const status = document.createElement('span');
+                status.className = `px-2 py-0.5 rounded text-[10px] ${b.status === 'Confirmed' ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'}`;
+                status.textContent = b.status === 'Confirmed' ? 'Confirmed' : 'Pending';
+                top.appendChild(status);
+
+                const source = document.createElement('span');
+                source.className = 'text-[9px] text-cyanGlow bg-cyanGlow/10 border border-cyanGlow/20 px-1.5 py-0.5 rounded';
+                source.textContent = 'Supabase Cloud';
+                top.appendChild(source);
+
+                const service = document.createElement('div');
+                service.className = 'text-cyanGlow font-bold';
+                service.textContent = `${String(b.serviceTitle ?? b.servicetitle ?? '')} - $${Number(b.price)||0}`;
+
+                const details = document.createElement('div');
+                details.className = 'text-slate-400 text-[11px] flex flex-wrap gap-3';
+                for (const value of [b.phone, b.vehicle, b.date]) {
+                    const span = document.createElement('span');
+                    span.textContent = String(value ?? '');
+                    details.appendChild(span);
+                }
+                info.append(top, service, details);
+
+                const actions = document.createElement('div');
+                actions.className = 'flex items-center gap-2';
+                const id = String(b.id ?? '');
+                if (b.status !== 'Confirmed') {
+                    const approve = document.createElement('button');
+                    approve.type = 'button';
+                    approve.className = 'px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold hover:bg-emerald-500/30';
+                    approve.textContent = 'Approve';
+                    approve.addEventListener('click', () => updateBookingStatus(id, 'Confirmed'));
+                    actions.appendChild(approve);
+                }
+                const del = document.createElement('button');
+                del.type = 'button';
+                del.className = 'px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20';
+                del.setAttribute('aria-label', 'Delete booking');
+                del.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                del.addEventListener('click', () => deleteBookingRecord(id));
+                actions.appendChild(del);
+
+                card.append(info, actions);
+                container.appendChild(card);
+            }
+        }
+
+        const BOOKING_PACKAGES = Object.freeze({
+            50: 'Exterior Wash ($50)',
+            60: 'Interior Cleaning ($60)',
+            100: 'Full Detail Package ($100)'
+        });
+
+        function getBookingFormValues() {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const vehicle = document.getElementById('cust-vehicle').value.trim();
+            const date = document.getElementById('cust-date').value;
+            const price = Number(currentPrice);
+
+            if (name.length < 2 || name.length > 100) throw new Error('Please enter a valid name (2–100 characters).');
+            if (phone.length < 7 || phone.length > 30) throw new Error('Please enter a valid phone number (7–30 characters).');
+            if (vehicle.length < 2 || vehicle.length > 120) throw new Error('Please enter a valid vehicle description (2–120 characters).');
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Please select a valid date.');
+            if (!Object.prototype.hasOwnProperty.call(BOOKING_PACKAGES, price)) throw new Error('Invalid service package.');
+
+            const today = new Date(); today.setHours(0,0,0,0);
+            const chosen = new Date(`${date}T00:00:00`);
+            if (Number.isNaN(chosen.getTime()) || chosen < today) throw new Error('Please select today or a future date.');
+
+            return { name, phone, vehicle, date, price, serviceTitle: BOOKING_PACKAGES[price] };
+        }
+
+        window.submitBookingForm = async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            const submitBtnText = document.getElementById('submit-btn-text');
+            const errorDetails = document.getElementById('modal-error-details');
+
+            try {
+                const values = getBookingFormValues();
+                if (!supabaseClient) throw new Error('Booking service unavailable.');
+                submitBtn.disabled = true;
+                submitBtnText.innerText = 'Submitting securely...';
+
+                const bookingPayload = {
+                    id: 'bk_' + (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`),
+                    ...values,
+                    status: 'Pending',
+                    createdAt: Date.now()
+                };
+
+                const { data, error } = await supabaseClient
+                    .from('bookings')
+                    .insert([bookingPayload])
+                    .select('id')
+                    .single();
+                if (error) throw error;
+
+                document.getElementById('saved-booking-id').innerText = data?.id || bookingPayload.id;
+                document.getElementById('modal-storage-badge').className = 'p-3 rounded-xl font-mono text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400';
+                document.getElementById('modal-storage-text').innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> <strong>Booking securely submitted.</strong>';
+                errorDetails.classList.add('hidden');
+
+                document.getElementById('booking-form').reset();
+                setBookingPackage(100);
+                const modal = document.getElementById('booking-modal');
+                const card = document.getElementById('booking-modal-card');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            } catch (err) {
+                console.error('Booking submission failed:', err);
+                errorDetails.textContent = err?.message?.startsWith('Please ') ? err.message : 'The booking could not be submitted. Please try again.';
+                errorDetails.classList.remove('hidden');
+                document.getElementById('modal-storage-badge').className = 'p-3 rounded-xl font-mono text-xs bg-rose-500/10 border border-rose-500/30 text-rose-400';
+                document.getElementById('modal-storage-text').textContent = 'Submission failed.';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtnText.innerText = 'Submit to Supabase';
+            }
+        };
+
+        async function ensureAdminSession() {
+            if (!supabaseClient) return false;
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const role = session?.user?.app_metadata?.role;
+            isAdminAuthenticated = Boolean(session?.user && role === 'admin');
+            adminUser = isAdminAuthenticated ? session.user : null;
+            return isAdminAuthenticated;
+        }
+
+        window.updateBookingStatus = async function(id, status) {
+            if (!(await ensureAdminSession())) return openAdminPasscodeModal();
+            if (!['Pending','Confirmed'].includes(status) || typeof id !== 'string' || !id) return;
+            const { error } = await supabaseClient.from('bookings').update({ status }).eq('id', id);
+            if (error) { console.warn('Booking update failed.'); return; }
+            await fetchAndRenderBookings();
+        };
+
+        window.deleteBookingRecord = async function(id) {
+            if (!(await ensureAdminSession())) return openAdminPasscodeModal();
+            if (typeof id !== 'string' || !id) return;
+            if (!window.confirm('Delete this booking permanently?')) return;
+            const { error } = await supabaseClient.from('bookings').delete().eq('id', id);
+            if (error) { console.warn('Booking deletion failed.'); return; }
+            await fetchAndRenderBookings();
+        };
+
+        window.openAdminPasscodeModal = function() {
+            if (isAdminAuthenticated) { navigateTo('admin'); return; }
+            const email = document.getElementById('admin-email-input');
+            const password = document.getElementById('admin-passcode-input');
+            const err = document.getElementById('passcode-error-msg');
+            if (email) email.value = '';
+            if (password) password.value = '';
+            if (err) { err.textContent = ''; err.classList.add('hidden'); }
+            const modal = document.getElementById('admin-passcode-modal');
+            const card = document.getElementById('passcode-card');
+            if (modal && card) {
+                modal.classList.remove('opacity-0','pointer-events-none');
+                card.classList.remove('scale-95'); card.classList.add('scale-100');
+                setTimeout(() => email?.focus(), 100);
+            }
+        };
+
+        window.closeAdminPasscodeModal = function() {
+            const modal = document.getElementById('admin-passcode-modal');
+            const card = document.getElementById('passcode-card');
+            if (modal && card) {
+                card.classList.remove('scale-100'); card.classList.add('scale-95');
+                modal.classList.add('opacity-0','pointer-events-none');
+            }
+        };
+
+        window.verifyAdminPasscode = async function(e) {
+            if (e) e.preventDefault();
+            const email = document.getElementById('admin-email-input')?.value.trim();
+            const password = document.getElementById('admin-passcode-input')?.value;
+            const err = document.getElementById('passcode-error-msg');
+            const submit = document.getElementById('admin-auth-submit');
+            if (!email || !password || !supabaseClient) return;
+
+            submit.disabled = true; submit.textContent = 'Signing In...'; err.classList.add('hidden');
+            try {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                if (!(await ensureAdminSession())) {
+                    await supabaseClient.auth.signOut();
+                    throw new Error('Not an administrator');
+                }
+                closeAdminPasscodeModal();
+                navigateTo('admin');
+                await checkSupabaseConnection(false);
+                await fetchAndRenderBookings();
+                setupRealtimeSubscription();
+                await refreshPushNotificationUI();
+            } catch (_) {
+                err.textContent = 'Sign-in failed or this account is not an administrator.';
+                err.classList.remove('hidden');
+            } finally {
+                submit.disabled = false; submit.textContent = 'Sign In';
+            }
+        };
+
+        window.lockAdminPortal = async function() {
+            await removeRealtimeSubscription();
+            if (supabaseClient) await supabaseClient.auth.signOut();
+            isAdminAuthenticated = false; adminUser = null; bookingsCache = [];
+            updateAdminUI(); navigateTo('home');
+        };
+    </script>
+
+    <!-- PAGE ROUTING & NAVIGATION SCRIPT -->
+    <script>
+        /* Multi-Page Navigation Router */
+        function navigateTo(pageId) {
+            if (pageId === 'admin' && !isAdminAuthenticated) {
+                openAdminPasscodeModal();
+                return;
+            }
+
+            const pages = document.querySelectorAll('.page-view');
+            pages.forEach(page => {
+                page.classList.remove('active-page');
+            });
+
+            const targetPage = document.getElementById(`page-${pageId}`) || document.getElementById('page-home');
+            targetPage.classList.add('active-page');
+
+            document.querySelectorAll('[data-nav]').forEach(nav => {
+                if (nav.getAttribute('data-nav') === pageId) {
+                    nav.classList.add('text-cyanGlow', 'font-bold');
+                    nav.classList.remove('text-slate-400');
+                } else {
+                    nav.classList.remove('text-cyanGlow', 'font-bold');
+                    nav.classList.add('text-slate-400');
+                }
+            });
+
+            if (window.location.hash !== `#${pageId}`) {
+                history.pushState(null, null, `#${pageId}`);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('popstate', () => {
+            const hash = window.location.hash.replace('#', '') || 'home';
+            navigateTo(hash);
+        });
+
+        const mobileBtn = document.getElementById('mobile-menu-toggle');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const mobileIcon = document.getElementById('mobile-menu-icon');
+
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
+                const isHidden = mobileDrawer.classList.contains('hidden');
+                if (isHidden) {
+                    mobileDrawer.classList.remove('hidden');
+                    mobileDrawer.classList.add('flex');
+                    mobileIcon.classList.remove('fa-bars');
+                    mobileIcon.classList.add('fa-xmark');
+                } else {
+                    closeMobileDrawer();
+                }
+            });
+        }
+
+        function closeMobileDrawer() {
+            if (mobileDrawer) {
+                mobileDrawer.classList.add('hidden');
+                mobileDrawer.classList.remove('flex');
+            }
+            if (mobileIcon) {
+                mobileIcon.classList.remove('fa-xmark');
+                mobileIcon.classList.add('fa-bars');
+            }
+        }
+
+        /* Package selection state */
+        let currentPrice = 100;
+        let currentTitle = "Full Detail Package ($100)";
+
+        function setBookingPackage(price) {
+            currentPrice = price;
+            if (price === 50) currentTitle = "Exterior Wash ($50)";
+            else if (price === 60) currentTitle = "Interior Cleaning ($60)";
+            else currentTitle = "Full Detail Package ($100)";
+
+            const radioEl = document.getElementById(`page-radio-${price}`);
+            if (radioEl) radioEl.checked = true;
+
+            const priceEl = document.getElementById('summary-price');
+            const titleEl = document.getElementById('summary-title');
+            if (priceEl) priceEl.innerText = `$${currentPrice}`;
+            if (titleEl) titleEl.innerText = currentTitle;
+        }
+
+        function toggleAccordion(elem) {
+            elem.classList.toggle('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('booking-modal');
+            const card = document.getElementById('booking-modal-card');
+            if (card) card.classList.remove('scale-100');
+            if (card) card.classList.add('scale-95');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        /* Ambient particle background */
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.radius = Math.random() * 1.5 + 0.5;
+                this.vx = (Math.random() - 0.5) * 0.2;
+                this.vy = (Math.random() - 0.5) * 0.2;
+                this.alpha = Math.random() * 0.3 + 0.1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 240, 255, ${this.alpha})`;
+                ctx.fill();
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+        }
+
+        for (let i = 0; i < (window.innerWidth < 640 ? 25 : 45); i++) {
+            particles.push(new Particle());
+        }
+
+        function renderParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(renderParticles);
+        }
+        renderParticles();
+
+        window.onload = async function() {
+            const initialHash = window.location.hash.replace('#','') || 'home';
+            await ensureAdminSession();
+
+            if (initialHash === 'admin' && !isAdminAuthenticated) {
+                navigateTo('home');
+                openAdminPasscodeModal();
+            } else {
+                navigateTo(initialHash);
+            }
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('cust-date')?.setAttribute('min', todayStr);
+            setBookingPackage(100);
+
+            if (isAdminAuthenticated) {
+                await checkSupabaseConnection(false);
+                await fetchAndRenderBookings();
+                setupRealtimeSubscription();
+                refreshPushNotificationUI();
+            } else {
+                updateStatusBadge('success','BOOKING SERVICE READY');
+                updateAdminUI();
+            }
+
+            if (supabaseClient) {
+                supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+                    const wasAdmin = isAdminAuthenticated;
+                    isAdminAuthenticated = Boolean(session?.user && session.user.app_metadata?.role === 'admin');
+                    adminUser = isAdminAuthenticated ? session.user : null;
+
+                    if (!isAdminAuthenticated) {
+                        bookingsCache = [];
+                        await removeRealtimeSubscription();
+                        if (wasAdmin) navigateTo('home');
+                    } else if (!wasAdmin) {
+                        await fetchAndRenderBookings();
+                        setupRealtimeSubscription();
+                    }
+                    updateAdminUI();
+                    refreshPushNotificationUI();
+                });
+            }
+        };
+    </script>
+</body>
+</html>
