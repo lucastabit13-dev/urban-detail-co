@@ -3,29 +3,44 @@
 npm distributes the downloadable website package. GitHub Pages hosts the public
 website visitors open in their browser. They can be released independently.
 
-## Publish the npm package
+## Published npm package
 
-The npm package name `urban-detail-co` was checked and did not exist in the
-registry at the time these instructions were prepared. Names can be claimed, so
-check availability again before publishing.
+`urban-detail-co@1.0.0` is published on npm and currently carries the `latest`
+tag. Install it into a project and run its local preview with:
 
-1. Install Node.js 20 or newer and open a terminal in the project folder.
-2. Run `npm test` and `npm pack --dry-run` to check the package.
-3. Run `npm login` and complete the official npm authentication flow yourself.
-4. Run `npm whoami` to confirm the account, then `npm publish`.
-5. Complete any verification npm requests. Never add npm credentials or tokens
-   to the repository.
+```sh
+npm install urban-detail-co
+npx urban-detail-co
+```
+
+Or run the published command without adding it to a project:
+
+```sh
+npx --yes urban-detail-co@1.0.0
+```
+
+To export the website files to a new directory, run:
+
+```sh
+npx urban-detail-co export my-website
+```
+
+## Publish a future release
+
+1. Install Node.js 20 or newer and edit the project files.
+2. Run `npm test` and `npm pack --dry-run` to check the package contents and CLI.
+3. Run `npm version patch` to increment the version and create a Git tag.
+4. Push the commit and tag with `git push origin main --follow-tags`.
+5. Run `npm publish` and complete any npm two-factor verification.
 6. Confirm the release with `npm view urban-detail-co version` and
-   `npx --yes urban-detail-co@1.0.0 --help`.
+   `npx --yes urban-detail-co@VERSION --help`.
 
-If the name is unavailable, change `name` in `package.json` to
-`@YOUR_NPM_USERNAME/urban-detail-co` and use the scoped package name in commands.
-An already published version cannot be replaced. For a later release, update the
-version with `npm version patch`, push the commit and tag, and publish the new
-version with `npm publish`.
+Publishing runs the package tests first. Each published version is permanent; use
+`npm version minor` or `npm version major` for larger changes. Never add npm
+credentials or tokens to this repository.
 
-To share an archive without publishing, run `npm pack`; install the resulting
-file using `npm install ./urban-detail-co-1.0.0.tgz`.
+To share an archive without publishing, run `npm pack` and install its generated
+`.tgz` file with `npm install ./urban-detail-co-X.Y.Z.tgz`.
 
 ## Deploy on GitHub Pages
 

@@ -29,7 +29,8 @@ Open `http://localhost:3000`. To choose a port, run `npm start -- --port 8000`.
 
 ## Download through npm
 
-Once version 1.0.0 is published to the npm registry, preview it with:
+Version 1.0.0 is published on npm and is the current latest release.
+Preview it with:
 
 ```sh
 npx urban-detail-co
